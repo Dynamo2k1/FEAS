@@ -30,3 +30,7 @@
 2025-12-12 00:48:30,047 - app.main - INFO - main.py:52 - Storage service initialized.
 2025-12-12 00:48:50,672 - exifread - WARNING - __init__.py:139 - PNG file does not have exif data.
 2025-12-12 00:48:51,084 - app.services.pdf_generator - INFO - pdf_generator.py:170 - PDF report generated: /tmp/tmpoe8fkueg.pdf
+2025-12-12 08:38:39,629 - app.main - INFO - main.py:50 - Starting up Forensic Evidence Acquisition System...
+2025-12-12 08:38:39,638 - app.services.storage - INFO - storage.py:23 - Local storage initialized at ./evidence_storage
+2025-12-12 08:38:39,640 - app.main - INFO - main.py:52 - Storage service initialized.
+2025-12-12 08:40:19,015 - app.services.pdf_generator - INFO - pdf_generator.py:170 - PDF report generated: /tmp/tmp13w9_4r2.pdf
