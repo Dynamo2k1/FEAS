@@ -19,25 +19,49 @@ class URLDownloader:
     def __init__(self):
         self.allowed_domains = settings.ALLOWED_URL_DOMAINS
         
+    def _is_domain_match(self, domain: str, allowed_domain: str) -> bool:
+        """Securely check if domain matches or is a subdomain of allowed domain"""
+        # Remove www. prefix
+        if domain.startswith("www."):
+            domain = domain[4:]
+        
+        # Exact match
+        if domain == allowed_domain:
+            return True
+        
+        # Subdomain match (must end with .allowed_domain)
+        if domain.endswith("." + allowed_domain):
+            return True
+        
+        return False
+    
     def validate_url(self, url: str) -> bool:
-        """Validate URL against whitelist"""
+        """Validate URL against whitelist using secure domain matching"""
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
         
         if domain.startswith("www."):
             domain = domain[4:]
             
-        return any(allowed in domain for allowed in self.allowed_domains)
+        return any(self._is_domain_match(domain, allowed) for allowed in self.allowed_domains)
     
     def detect_platform(self, url: str) -> Optional[Platform]:
         """Detect which platform the URL belongs to"""
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
         
-        if "twitter.com" in domain or "x.com" in domain:
+        if domain.startswith("www."):
+            domain = domain[4:]
+        
+        # Use secure domain matching
+        if self._is_domain_match(domain, "twitter.com") or self._is_domain_match(domain, "x.com"):
             return Platform.TWITTER
-        elif "youtube.com" in domain or "youtu.be" in domain:
+        elif self._is_domain_match(domain, "youtube.com") or self._is_domain_match(domain, "youtu.be"):
             return Platform.YOUTUBE
+        elif self._is_domain_match(domain, "facebook.com") or self._is_domain_match(domain, "fb.watch") or self._is_domain_match(domain, "fb.com"):
+            return Platform.FACEBOOK
+        elif self._is_domain_match(domain, "instagram.com"):
+            return Platform.INSTAGRAM
         return None
     
     async def download_youtube(self, url: str) -> Dict[str, Any]:
@@ -126,6 +150,97 @@ class URLDownloader:
             logger.error(f"Twitter download failed: {str(e)}")
             return {'success': False, 'error': str(e)}
     
+    async def download_facebook(self, url: str) -> Dict[str, Any]:
+        """Download content from Facebook"""
+        ydl_opts = {
+            'format': 'best[ext=mp4]/best',
+            'outtmpl': '%(id)s.%(ext)s',
+            'quiet': True,
+            'no_warnings': True,
+        }
+        
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                ydl_opts['outtmpl'] = os.path.join(tmpdir, '%(id)s.%(ext)s')
+                
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+                    
+                    if os.path.exists(filename):
+                        # Determine extension based on format
+                        ext = os.path.splitext(filename)[1] or '.mp4'
+                        permanent_temp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+                        with open(filename, 'rb') as src, open(permanent_temp.name, 'wb') as dst:
+                            dst.write(src.read())
+                        
+                        return {
+                            'success': True,
+                            'file_path': permanent_temp.name,
+                            'platform_metadata': {
+                                'id': info.get('id'),
+                                'title': info.get('title'),
+                                'uploader': info.get('uploader'),
+                                'upload_date': info.get('upload_date'),
+                                'duration': info.get('duration'),
+                                'view_count': info.get('view_count'),
+                                'description': info.get('description')
+                            },
+                            'platform': Platform.FACEBOOK
+                        }
+            
+            return {'success': False, 'error': 'Download completed but file not found'}
+                
+        except Exception as e:
+            logger.error(f"Facebook download failed: {str(e)}")
+            return {'success': False, 'error': str(e)}
+    
+    async def download_instagram(self, url: str) -> Dict[str, Any]:
+        """Download content from Instagram"""
+        ydl_opts = {
+            'format': 'best[ext=mp4]/best',
+            'outtmpl': '%(id)s.%(ext)s',
+            'quiet': True,
+            'no_warnings': True,
+        }
+        
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                ydl_opts['outtmpl'] = os.path.join(tmpdir, '%(id)s.%(ext)s')
+                
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+                    
+                    if os.path.exists(filename):
+                        # Determine extension based on format
+                        ext = os.path.splitext(filename)[1] or '.mp4'
+                        permanent_temp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+                        with open(filename, 'rb') as src, open(permanent_temp.name, 'wb') as dst:
+                            dst.write(src.read())
+                        
+                        return {
+                            'success': True,
+                            'file_path': permanent_temp.name,
+                            'platform_metadata': {
+                                'id': info.get('id'),
+                                'title': info.get('title'),
+                                'uploader': info.get('uploader') or info.get('channel'),
+                                'upload_date': info.get('upload_date'),
+                                'duration': info.get('duration'),
+                                'like_count': info.get('like_count'),
+                                'comment_count': info.get('comment_count'),
+                                'description': info.get('description')
+                            },
+                            'platform': Platform.INSTAGRAM
+                        }
+            
+            return {'success': False, 'error': 'Download completed but file not found'}
+                
+        except Exception as e:
+            logger.error(f"Instagram download failed: {str(e)}")
+            return {'success': False, 'error': str(e)}
+    
     async def download_generic(self, url: str) -> Dict[str, Any]:
         """Download content from generic URLs"""
         try:
@@ -189,5 +304,9 @@ class URLDownloader:
             return await self.download_youtube(url)
         elif platform == Platform.TWITTER:
             return await self.download_twitter(url)
+        elif platform == Platform.FACEBOOK:
+            return await self.download_facebook(url)
+        elif platform == Platform.INSTAGRAM:
+            return await self.download_instagram(url)
         else:
             return await self.download_generic(url)

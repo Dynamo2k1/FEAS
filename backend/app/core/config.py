@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     S3_SECURE: bool = True
 
     # --- Redis / Celery Settings ---
-    REDIS_HOST: str = "127.0.0.1"
+    REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
     CELERY_BROKER_URL: Optional[str] = None
     CELERY_RESULT_BACKEND: Optional[str] = None
@@ -65,7 +65,11 @@ class Settings(BaseSettings):
         "twitter.com",
         "x.com",
         "youtube.com",
-        "youtu.be"
+        "youtu.be",
+        "facebook.com",
+        "fb.watch",
+        "fb.com",
+        "instagram.com"
     ]
 
     ALLOWED_MIME_TYPES: List[str] = [

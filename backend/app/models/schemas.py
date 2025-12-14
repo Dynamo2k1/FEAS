@@ -20,6 +20,8 @@ class EvidenceSource(str, Enum):
 class Platform(str, Enum):
     TWITTER = "twitter"
     YOUTUBE = "youtube"
+    FACEBOOK = "facebook"
+    INSTAGRAM = "instagram"
     LOCAL = "local"
 
 class URLJobCreate(BaseModel):
@@ -30,7 +32,7 @@ class URLJobCreate(BaseModel):
     
     @validator('url')
     def validate_url_domain(cls, v):
-        allowed_domains = ['twitter.com', 'x.com', 'youtube.com', 'youtu.be']
+        allowed_domains = ['twitter.com', 'x.com', 'youtube.com', 'youtu.be', 'facebook.com', 'fb.watch', 'instagram.com']
         domain = str(v).split('/')[2]
         if not any(allowed in domain for allowed in allowed_domains):
             raise ValueError(f'URL domain not allowed. Allowed: {allowed_domains}')
