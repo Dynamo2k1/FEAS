@@ -240,7 +240,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <div>System: <StatusIndicator status="ok">OPERATIONAL</StatusIndicator></div>
           <div>Active Jobs: {activeJobs}</div>
           <div>Total Jobs: {totalJobs}</div>
-          <Version>v1.0.0 | FORENSIC OS</Version>
+          <Version>v1.0.0 | FEAS</Version>
         </SystemInfo>
       </SidebarFooter>
     </SidebarContainer>
