@@ -124,7 +124,7 @@ const Footer = () => {
       </SecurityBadge>
       
       <Copyright>
-        © 2024 <span>FORENSIC ACQUISITION SYSTEM</span> v1.0.0
+        © 2025 <span>FORENSIC ACQUISITION SYSTEM</span> v1.0.0
       </Copyright>
     </FooterContainer>
   );
