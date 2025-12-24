@@ -30,8 +30,8 @@ class Job(Base):
     storage_path = Column(String, nullable=True)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     completed_at = Column(DateTime, nullable=True)
 
     # Relationships
@@ -42,7 +42,7 @@ class ChainOfCustody(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     job_id = Column(String, ForeignKey("jobs.id"))
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.now)
     event = Column(String)
     investigator_id = Column(String)
     details = Column(JSON)
@@ -58,8 +58,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationship to profile
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -72,7 +72,7 @@ class UserProfile(Base):
     name = Column(String, default="Investigator")
     role = Column(String, default="Senior Analyst")
     bio = Column(String, default="Digital forensics specialist.")
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationship back to user
     user = relationship("User", back_populates="profile")
@@ -84,4 +84,4 @@ class SocialLink(Base):
     platform = Column(String) # e.g., "twitter"
     handle = Column(String)
     url = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
