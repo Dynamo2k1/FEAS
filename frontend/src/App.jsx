@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { useThemeStore } from './store/themeStore';
 
 // Layout
-
+import Layout from './components/layout/Layout';
 
 // Auth
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -77,4 +77,5 @@ function App() {
 }
 
 export default App;
+
 
